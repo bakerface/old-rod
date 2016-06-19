@@ -21,5 +21,26 @@
  *
  */
 
-exports.cast = require('./cast');
-exports.wrap = require('./wrap');
+var express = require('express');
+var supertest = require('supertest');
+var rod = require('..');
+
+describe('wrap(fn)', function () {
+  beforeEach(function () {
+    this.app = express();
+
+    this.app.get('/', rod.wrap(function () {
+      return Promise.reject({
+        status: 400
+      });
+    }));
+
+    this.app.use(rod.cast());
+  });
+
+  it('should forward errors', function (done) {
+    supertest(this.app)
+      .get('/')
+      .expect(400, done);
+  });
+});
