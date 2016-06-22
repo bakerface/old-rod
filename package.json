@@ -1,6 +1,6 @@
 {
   "name": "old-rod",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Catch errors in your express routes",
   "main": "index.js",
   "author": "Christopher M. Baker",
@@ -39,6 +39,9 @@
       "brace-style": [
         "error",
         "stroustrup"
+      ],
+      "no-extend-native": [
+        "off"
       ],
       "no-unused-vars": [
         "error", {

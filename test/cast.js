@@ -25,17 +25,11 @@ var express = require('express');
 var supertest = require('supertest');
 var rod = require('..');
 
-function Status(status) {
-  this.status = status;
-}
-
-Status.prototype.inherited = 'inherited';
-
-function Name(name) {
-  this.name = name;
-}
-
-Name.prototype.inherited = 'inherited';
+Object.defineProperty(Object.prototype, 'ignored', {
+  value: 'ignored',
+  enumerable: true,
+  writable: true
+});
 
 describe('cast(defaults)', function () {
   var app;
@@ -49,11 +43,15 @@ describe('cast(defaults)', function () {
     });
 
     app.get('/catch/name/:name', function (req, res, next) {
-      next(new Name(req.params.name));
+      next(req.params);
     });
 
     app.get('/catch/status/:status', function (req, res, next) {
-      next(new Status(req.params.status));
+      next(req.params);
+    });
+
+    app.get('/catch/error/:message', function (req, res, next) {
+      next(new TypeError(req.params.message));
     });
   });
 
@@ -91,6 +89,16 @@ describe('cast(defaults)', function () {
         request.expect(500, {
           name: 'CustomError'
         }, done);
+      });
+    });
+
+    describe('catching an error', function () {
+      beforeEach(function () {
+        request = supertest(app).get('/catch/error/foo');
+      });
+
+      it('should not return the error name', function (done) {
+        request.expect(500, { }, done);
       });
     });
   });
@@ -131,6 +139,16 @@ describe('cast(defaults)', function () {
         request.expect(501, {
           name: 'CustomError'
         }, done);
+      });
+    });
+
+    describe('catching an error', function () {
+      beforeEach(function () {
+        request = supertest(app).get('/catch/error/foo');
+      });
+
+      it('should not return the error name', function (done) {
+        request.expect(501, { }, done);
       });
     });
   });
@@ -174,6 +192,18 @@ describe('cast(defaults)', function () {
       it('should return the object name', function (done) {
         request.expect(500, {
           name: 'CustomError'
+        }, done);
+      });
+    });
+
+    describe('catching an error', function () {
+      beforeEach(function () {
+        request = supertest(app).get('/catch/error/foo');
+      });
+
+      it('should return the error name', function (done) {
+        request.expect(500, {
+          name: 'TypeError'
         }, done);
       });
     });
