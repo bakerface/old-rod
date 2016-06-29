@@ -21,6 +21,31 @@
  *
  */
 
-exports.cast = require('./cast');
-exports.notfound = require('./notfound');
-exports.wrap = require('./wrap');
+var express = require('express');
+var supertest = require('supertest');
+var rod = require('..');
+
+describe('notfound', function () {
+  var app;
+  var request;
+
+  beforeEach(function () {
+    app = express();
+    app.use(rod.notfound());
+    app.use(rod.cast());
+  });
+
+  describe('requesting a resource that does not exist', function () {
+    beforeEach(function () {
+      request = supertest(app).get('/not/found');
+    });
+
+    it('should return a resource not found error', function (done) {
+      request.expect(404, {
+        name: 'ResourceNotFoundError',
+        message: 'The specified resource could not be found',
+        resource: '/not/found'
+      }, done);
+    });
+  });
+});
