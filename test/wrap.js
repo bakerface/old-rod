@@ -30,9 +30,11 @@ describe('wrap(fn)', function () {
     this.app = express();
 
     this.app.get('/', rod.wrap(function () {
-      return Promise.reject({
-        status: 400
-      });
+      var err = new Error();
+
+      err.status = 400;
+
+      return Promise.reject(err);
     }));
 
     this.app.use(rod.cast());
